@@ -121,7 +121,7 @@ public class SelectQueryQueryToolChest extends QueryToolChest<Result<SelectResul
   @Override
   public ServiceMetricEvent.Builder makeMetricBuilder(SelectQuery query)
   {
-    return QueryMetricUtil.makeQueryTimeMetric(query);
+    return QueryMetricUtil.makeQueryTimePortionMetric(query);
   }
 
   @Override

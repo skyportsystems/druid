@@ -184,25 +184,25 @@ public class DruidCoordinatorLogger implements DruidCoordinatorHelper
       LoadQueuePeon queuePeon = entry.getValue();
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setUser1(serverName).build(
+              .setDimension("server", serverName).build(
               "coordinator/loadQueue/size", queuePeon.getLoadQueueSize()
           )
       );
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setUser1(serverName).build(
+              .setDimension("server", serverName).build(
               "coordinator/loadQueue/failed", queuePeon.getAndResetFailedAssignCount()
           )
       );
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setUser1(serverName).build(
+              .setDimension("server", serverName).build(
               "coordinator/loadQueue/count", queuePeon.getSegmentsToLoad().size()
           )
       );
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setUser1(serverName).build(
+              .setDimension("server", serverName).build(
               "coordinator/dropQueue/count", queuePeon.getSegmentsToDrop().size()
           )
       );
@@ -222,7 +222,7 @@ public class DruidCoordinatorLogger implements DruidCoordinatorHelper
       Long size = entry.getValue();
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setUser1(dataSource).build(
+              .setDimension("dataSource", dataSource).build(
               "coordinator/segment/size", size
           )
       );
@@ -232,7 +232,7 @@ public class DruidCoordinatorLogger implements DruidCoordinatorHelper
       Long count = entry.getValue();
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setUser1(dataSource).build(
+              .setDimension("dataSource", dataSource).build(
               "coordinator/segment/count", count
           )
       );

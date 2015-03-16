@@ -420,8 +420,9 @@ public class TaskQueue
   private ListenableFuture<TaskStatus> attachCallbacks(final Task task, final ListenableFuture<TaskStatus> statusFuture)
   {
     final ServiceMetricEvent.Builder metricBuilder = new ServiceMetricEvent.Builder()
-        .setUser2(task.getDataSource())
-        .setUser4(task.getType());
+        .setDimension("dataSource", task.getDataSource())
+        .setDimension("taskType", task.getType());
+
     Futures.addCallback(
         statusFuture,
         new FutureCallback<TaskStatus>()
@@ -458,7 +459,7 @@ public class TaskQueue
 
               // Emit event and log, if the task is done
               if (status.isComplete()) {
-                metricBuilder.setUser3(status.getStatusCode().toString());
+                metricBuilder.setDimension("status", status.getStatusCode().toString());
                 emitter.emit(metricBuilder.build("indexer/time/run/millis", status.getDuration()));
 
                 log.info(

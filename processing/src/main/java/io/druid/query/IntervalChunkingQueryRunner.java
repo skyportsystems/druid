@@ -24,7 +24,6 @@ import com.metamx.common.guava.Sequence;
 import com.metamx.common.guava.Sequences;
 import com.metamx.emitter.service.ServiceEmitter;
 import com.metamx.emitter.service.ServiceMetricEvent;
-
 import io.druid.granularity.PeriodGranularity;
 import io.druid.query.spec.MultipleIntervalSegmentSpec;
 import org.joda.time.Interval;
@@ -47,8 +46,10 @@ public class IntervalChunkingQueryRunner<T> implements QueryRunner<T>
   private final QueryWatcher queryWatcher;
   private final ServiceEmitter emitter;
 
-  public IntervalChunkingQueryRunner(QueryRunner<T> baseRunner, QueryToolChest<T, Query<T>> toolChest,
-      ExecutorService executor, QueryWatcher queryWatcher, ServiceEmitter emitter)
+  public IntervalChunkingQueryRunner(
+      QueryRunner<T> baseRunner, QueryToolChest<T, Query<T>> toolChest,
+      ExecutorService executor, QueryWatcher queryWatcher, ServiceEmitter emitter
+  )
   {
     this.baseRunner = baseRunner;
     this.toolChest = toolChest;
@@ -65,20 +66,22 @@ public class IntervalChunkingQueryRunner<T> implements QueryRunner<T>
       return baseRunner.run(query, responseContext);
     }
 
-    List<Interval> chunkIntervals = Lists.newArrayList(FunctionalIterable
-        .create(query.getIntervals())
-        .transformCat(
-            new Function<Interval, Iterable<Interval>>()
-            {
-              @Override
-              public Iterable<Interval> apply(Interval input)
-              {
-                return splitInterval(input, chunkPeriod);
-              }
-            }
-        ));
+    List<Interval> chunkIntervals = Lists.newArrayList(
+        FunctionalIterable
+            .create(query.getIntervals())
+            .transformCat(
+                new Function<Interval, Iterable<Interval>>()
+                {
+                  @Override
+                  public Iterable<Interval> apply(Interval input)
+                  {
+                    return splitInterval(input, chunkPeriod);
+                  }
+                }
+            )
+    );
 
-    if(chunkIntervals.size() <= 1) {
+    if (chunkIntervals.size() <= 1) {
       return baseRunner.run(query, responseContext);
     }
 
@@ -96,25 +99,30 @@ public class IntervalChunkingQueryRunner<T> implements QueryRunner<T>
                     return toolChest.makeMetricBuilder(input);
                   }
                 },
-                baseRunner
-            ).withWaitMeasuredFromNow()),
-        executor, queryWatcher);
+                baseRunner,
+                "query/intervalChunk/time"
+            ).withWaitMeasuredFromNow()
+        ),
+        executor, queryWatcher
+    );
 
     return Sequences.concat(
-        Lists.newArrayList(FunctionalIterable.create(chunkIntervals).transform(
-            new Function<Interval, Sequence<T>>()
-            {
-              @Override
-              public Sequence<T> apply(Interval singleInterval)
-              {
-                return finalQueryRunner.run(
-                    query.withQuerySegmentSpec(new MultipleIntervalSegmentSpec(Arrays.asList(singleInterval))),
-                    responseContext
+        Lists.newArrayList(
+            FunctionalIterable.create(chunkIntervals).transform(
+                new Function<Interval, Sequence<T>>()
+                {
+                  @Override
+                  public Sequence<T> apply(Interval singleInterval)
+                  {
+                    return finalQueryRunner.run(
+                        query.withQuerySegmentSpec(new MultipleIntervalSegmentSpec(Arrays.asList(singleInterval))),
+                        responseContext
                     );
-              }
-            }
-            ))
-        );
+                  }
+                }
+            )
+        )
+    );
   }
 
   private Iterable<Interval> splitInterval(Interval interval, Period period)
@@ -143,7 +151,8 @@ public class IntervalChunkingQueryRunner<T> implements QueryRunner<T>
     return intervals;
   }
 
-  private Period getChunkPeriod(Query<T> query) {
+  private Period getChunkPeriod(Query<T> query)
+  {
     String p = query.getContextValue(QueryContextKeys.CHUNK_PERIOD, "P0D");
     return Period.parse(p);
   }

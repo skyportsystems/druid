@@ -55,7 +55,7 @@ public class RealtimeMetricsMonitor extends AbstractMonitor
       }
 
       final ServiceMetricEvent.Builder builder = new ServiceMetricEvent.Builder()
-          .setUser2(fireDepartment.getDataSchema().getDataSource());
+          .setDimension("dataSource", fireDepartment.getDataSchema().getDataSource());
 
       final long thrownAway = metrics.thrownAway() - previous.thrownAway();
       if (thrownAway > 0) {

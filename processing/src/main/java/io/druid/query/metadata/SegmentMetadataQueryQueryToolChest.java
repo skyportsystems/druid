@@ -144,7 +144,7 @@ public class SegmentMetadataQueryQueryToolChest extends QueryToolChest<SegmentAn
   @Override
   public ServiceMetricEvent.Builder makeMetricBuilder(SegmentMetadataQuery query)
   {
-    return QueryMetricUtil.makeQueryTimeMetric(query);
+    return QueryMetricUtil.makeQueryTimePortionMetric(query);
   }
 
   @Override

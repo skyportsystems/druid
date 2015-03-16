@@ -438,7 +438,7 @@ public class ServerManager implements QuerySegmentWalker
                           }
                         },
                         new ReferenceCountingSegmentQueryRunner<T>(factory, adapter),
-                        "scan/time"
+                        "segment/scan/time"
                     ),
                     cachingExec,
                     cacheConfig

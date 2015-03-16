@@ -17,6 +17,16 @@
 
 package io.druid.query.timeseries;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
+import com.google.inject.Inject;
+import com.metamx.common.guava.MergeSequence;
+import com.metamx.common.guava.Sequence;
+import com.metamx.common.guava.nary.BinaryFn;
+import com.metamx.emitter.service.ServiceMetricEvent;
 import io.druid.collections.OrderedMergeSequence;
 import io.druid.granularity.QueryGranularity;
 import io.druid.query.CacheStrategy;
@@ -33,26 +43,13 @@ import io.druid.query.aggregation.AggregatorFactory;
 import io.druid.query.aggregation.MetricManipulationFn;
 import io.druid.query.aggregation.PostAggregator;
 import io.druid.query.filter.DimFilter;
+import org.joda.time.DateTime;
 
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nullable;
-
-import org.joda.time.DateTime;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Ordering;
-import com.google.inject.Inject;
-import com.metamx.common.guava.MergeSequence;
-import com.metamx.common.guava.Sequence;
-import com.metamx.common.guava.nary.BinaryFn;
-import com.metamx.emitter.service.ServiceMetricEvent;
 
 /**
  */
@@ -120,8 +117,15 @@ public class TimeseriesQueryQueryToolChest extends QueryToolChest<Result<Timeser
   @Override
   public ServiceMetricEvent.Builder makeMetricBuilder(TimeseriesQuery query)
   {
-    return QueryMetricUtil.makeQueryTimeMetric(query)
-                          .setUser7(String.format("%,d aggs", query.getAggregatorSpecs().size()));
+    return QueryMetricUtil.makeQueryTimePortionMetric(query)
+                          .setDimension(
+                              "numMetrics",
+                              String.valueOf(query.getAggregatorSpecs().size())
+                          )
+                          .setDimension(
+                              "numComplexMetrics",
+                              String.valueOf(QueryMetricUtil.findNumComplexAggs(query.getAggregatorSpecs()))
+                          );
   }
 
   @Override

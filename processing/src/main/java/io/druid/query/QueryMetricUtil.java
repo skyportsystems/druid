@@ -23,18 +23,35 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.metamx.emitter.service.ServiceMetricEvent;
+import io.druid.query.aggregation.AggregatorFactory;
 import org.joda.time.Interval;
+
+import java.util.List;
 
 /**
  */
 public class QueryMetricUtil
 {
-  public static <T> ServiceMetricEvent.Builder makeQueryTimeMetric(Query<T> query)
+  public static int findNumComplexAggs(List<AggregatorFactory> aggs)
+  {
+    int retVal = 0;
+    for (AggregatorFactory agg : aggs) {
+      // This needs to change when
+      if (!agg.getTypeName().equals("float") && !agg.getTypeName().equals("long")) {
+        retVal++;
+      }
+    }
+    return retVal;
+  }
+
+
+  public static <T> ServiceMetricEvent.Builder makeQueryTimePortionMetric(Query<T> query)
   {
     return new ServiceMetricEvent.Builder()
-        .setUser2(DataSourceUtil.getMetricName(query.getDataSource()))
-        .setUser4(query.getType())
-        .setUser5(
+        .setDimension("dataSource", DataSourceUtil.getMetricName(query.getDataSource()))
+        .setDimension("type", query.getType())
+        .setDimension(
+            "interval",
             Lists.transform(
                 query.getIntervals(),
                 new Function<Interval, String>()
@@ -47,23 +64,24 @@ public class QueryMetricUtil
                 }
             ).toArray(new String[query.getIntervals().size()])
         )
-        .setUser6(String.valueOf(query.hasFilters()))
-        .setUser9(query.getDuration().toPeriod().toStandardMinutes().toString());
+        .setDimension("hasFilters", String.valueOf(query.hasFilters()))
+        .setDimension("duration", query.getDuration().toPeriod().toStandardMinutes().toString());
   }
 
-  public static <T> ServiceMetricEvent.Builder makeRequestTimeMetric(
+  public static <T> ServiceMetricEvent.Builder makeQueryTimeMetric(
       final ObjectMapper jsonMapper, final Query<T> query, final String remoteAddr
   ) throws JsonProcessingException
   {
-    return makeQueryTimeMetric(query)
-        .setUser3(
+    return makeQueryTimePortionMetric(query)
+        .setDimension(
+            "context",
             jsonMapper.writeValueAsString(
                 query.getContext() == null
                 ? ImmutableMap.of()
                 : query.getContext()
             )
         )
-        .setUser7(remoteAddr)
-        .setUser8(query.getId());
+        .setDimension("remoteAddr", remoteAddr)
+        .setDimension("id", query.getId());
   }
 }

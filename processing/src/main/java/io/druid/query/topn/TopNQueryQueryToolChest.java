@@ -82,7 +82,8 @@ public class TopNQueryQueryToolChest extends QueryToolChest<Result<TopNResultVal
     this.intervalChunkingQueryRunnerDecorator = intervalChunkingQueryRunnerDecorator;
   }
 
-  protected static String[] extractFactoryName(final List<AggregatorFactory> aggregatorFactories){
+  protected static String[] extractFactoryName(final List<AggregatorFactory> aggregatorFactories)
+  {
     return Lists.transform(
         aggregatorFactories, new Function<AggregatorFactory, String>()
         {
@@ -153,15 +154,22 @@ public class TopNQueryQueryToolChest extends QueryToolChest<Result<TopNResultVal
   @Override
   public ServiceMetricEvent.Builder makeMetricBuilder(TopNQuery query)
   {
-    return QueryMetricUtil.makeQueryTimeMetric(query)
-                          .setUser4(
-                              String.format(
+    return QueryMetricUtil.makeQueryTimePortionMetric(query)
+                          .setDimension(
+                              "type", String.format(
                                   "topN/%s/%s",
                                   query.getThreshold(),
                                   query.getDimensionSpec().getDimension()
                               )
                           )
-                          .setUser7(String.format("%,d aggs", query.getAggregatorSpecs().size()));
+                          .setDimension(
+                              "numMetrics",
+                              String.valueOf(query.getAggregatorSpecs().size())
+                          )
+                          .setDimension(
+                              "numComplexMetrics",
+                              String.valueOf(QueryMetricUtil.findNumComplexAggs(query.getAggregatorSpecs()))
+                          );
   }
 
   @Override
@@ -255,7 +263,7 @@ public class TopNQueryQueryToolChest extends QueryToolChest<Result<TopNResultVal
                     );
                     // put non finalized aggregators for calculating dependent post Aggregators
                     // JVM is dumb about optimization
-                    for( int i = 0; i < aggFactoryNames.length; ++i){
+                    for (int i = 0; i < aggFactoryNames.length; ++i) {
                       final String name = aggFactoryNames[i];
                       values.put(name, input.getMetric(name));
                     }
@@ -268,7 +276,7 @@ public class TopNQueryQueryToolChest extends QueryToolChest<Result<TopNResultVal
                         values.put(postAgg.getName(), postAgg.compute(values));
                       }
                     }
-                    for( int i = 0; i < aggFactoryNames.length; ++i){
+                    for (int i = 0; i < aggFactoryNames.length; ++i) {
                       final String name = aggFactoryNames[i];
                       values.put(name, fn.manipulate(aggregatorFactories[i], input.getMetric(name)));
                     }

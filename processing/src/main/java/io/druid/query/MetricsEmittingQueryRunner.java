@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class MetricsEmittingQueryRunner<T> implements QueryRunner<T>
 {
-  private static final String DEFAULT_METRIC_NAME = "query/time";
+  private static final String DEFAULT_METRIC_NAME = "query/portion/time";
 
   private final ServiceEmitter emitter;
   private final Function<Query<T>, ServiceMetricEvent.Builder> builderFn;
@@ -88,7 +88,7 @@ public class MetricsEmittingQueryRunner<T> implements QueryRunner<T>
     if (queryId == null) {
       queryId = "";
     }
-    builder.setUser8(queryId);
+    builder.setDimension("id", queryId);
 
     return new Sequence<T>()
     {
@@ -102,11 +102,11 @@ public class MetricsEmittingQueryRunner<T> implements QueryRunner<T>
           retVal = queryRunner.run(query, responseContext).accumulate(outType, accumulator);
         }
         catch (RuntimeException e) {
-          builder.setUser10("failed");
+          builder.setDimension("status", "failed");
           throw e;
         }
         catch (Error e) {
-          builder.setUser10("failed");
+          builder.setDimension("status", "failed");
           throw e;
         }
         finally {
@@ -132,11 +132,11 @@ public class MetricsEmittingQueryRunner<T> implements QueryRunner<T>
           retVal = queryRunner.run(query, responseContext).toYielder(initValue, accumulator);
         }
         catch (RuntimeException e) {
-          builder.setUser10("failed");
+          builder.setDimension("status", "failed");
           throw e;
         }
         catch (Error e) {
-          builder.setUser10("failed");
+          builder.setDimension("status", "failed");
           throw e;
         }
 
@@ -164,11 +164,11 @@ public class MetricsEmittingQueryRunner<T> implements QueryRunner<T>
               return makeYielder(startTime, yielder.next(initValue), builder);
             }
             catch (RuntimeException e) {
-              builder.setUser10("failed");
+              builder.setDimension("status", "failed");
               throw e;
             }
             catch (Error e) {
-              builder.setUser10("failed");
+              builder.setDimension("status", "failed");
               throw e;
             }
           }
@@ -183,8 +183,8 @@ public class MetricsEmittingQueryRunner<T> implements QueryRunner<T>
           public void close() throws IOException
           {
             try {
-              if (!isDone() && builder.getUser10() == null) {
-                builder.setUser10("short");
+              if (!isDone() && builder.getDimension("status") == null) {
+                builder.setDimension("status", "short");
               }
 
               long timeTaken = System.currentTimeMillis() - startTime;

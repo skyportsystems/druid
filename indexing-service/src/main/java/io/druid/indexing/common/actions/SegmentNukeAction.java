@@ -61,11 +61,11 @@ public class SegmentNukeAction implements TaskAction<Void>
 
     // Emit metrics
     final ServiceMetricEvent.Builder metricBuilder = new ServiceMetricEvent.Builder()
-        .setUser2(task.getDataSource())
-        .setUser4(task.getType());
+        .setDimension("dataSource", task.getDataSource())
+        .setDimension("taskType", task.getType());
 
     for (DataSegment segment : segments) {
-      metricBuilder.setUser5(segment.getInterval().toString());
+      metricBuilder.setDimension("interval", segment.getInterval().toString());
       toolbox.getEmitter().emit(metricBuilder.build("indexer/segmentNuked/bytes", segment.getSize()));
     }
 

@@ -34,7 +34,6 @@ import io.druid.server.log.RequestLogger;
 import io.druid.server.router.QueryHostFinder;
 import io.druid.server.router.Router;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentProvider;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.api.Result;
@@ -261,7 +260,7 @@ public class AsyncQueryForwardingServlet extends AsyncProxyServlet
       final long requestTime = System.currentTimeMillis() - start;
       try {
         emitter.emit(
-            QueryMetricUtil.makeRequestTimeMetric(jsonMapper, query, req.getRemoteAddr())
+            QueryMetricUtil.makeQueryTimeMetric(jsonMapper, query, req.getRemoteAddr())
                            .build("request/time", requestTime)
         );
 

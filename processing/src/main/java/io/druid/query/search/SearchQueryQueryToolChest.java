@@ -122,7 +122,7 @@ public class SearchQueryQueryToolChest extends QueryToolChest<Result<SearchResul
   @Override
   public ServiceMetricEvent.Builder makeMetricBuilder(SearchQuery query)
   {
-    return QueryMetricUtil.makeQueryTimeMetric(query);
+    return QueryMetricUtil.makeQueryTimePortionMetric(query);
   }
 
   @Override

@@ -438,12 +438,13 @@ public class ServerManager implements QuerySegmentWalker
                           }
                         },
                         new ReferenceCountingSegmentQueryRunner<T>(factory, adapter),
-                        "segment/scan/time"
+                        "query/segment/time"
                     ),
                     cachingExec,
                     cacheConfig
                 )
-            )
+            ),
+            "query/segmentAndCache/time"
         ).withWaitMeasuredFromNow(),
         segmentSpec
     );

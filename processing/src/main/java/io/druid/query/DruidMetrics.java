@@ -30,13 +30,25 @@ import java.util.List;
 
 /**
  */
-public class QueryMetricUtil
+public class DruidMetrics
 {
+  public final static String DATASOURCE = "dataSource";
+  public final static String TYPE = "type";
+  public final static String INTERVAL = "interval";
+  public final static String ID = "id";
+  public final static String STATUS = "status";
+
+  // task metrics
+  public final static String TASK_TYPE = "taskType";
+  public final static String TASK_STATUS = "taskStatus";
+
+  public final static String SERVER = "server";
+
   public static int findNumComplexAggs(List<AggregatorFactory> aggs)
   {
     int retVal = 0;
     for (AggregatorFactory agg : aggs) {
-      // This needs to change when
+      // This needs to change when we have support column types better
       if (!agg.getTypeName().equals("float") && !agg.getTypeName().equals("long")) {
         retVal++;
       }
@@ -45,13 +57,13 @@ public class QueryMetricUtil
   }
 
 
-  public static <T> ServiceMetricEvent.Builder makeQueryTimePortionMetric(Query<T> query)
+  public static <T> ServiceMetricEvent.Builder makePartialQueryTimeMetric(Query<T> query)
   {
     return new ServiceMetricEvent.Builder()
-        .setDimension("dataSource", DataSourceUtil.getMetricName(query.getDataSource()))
-        .setDimension("type", query.getType())
+        .setDimension(DATASOURCE, DataSourceUtil.getMetricName(query.getDataSource()))
+        .setDimension(TYPE, query.getType())
         .setDimension(
-            "interval",
+            INTERVAL,
             Lists.transform(
                 query.getIntervals(),
                 new Function<Interval, String>()
@@ -72,7 +84,7 @@ public class QueryMetricUtil
       final ObjectMapper jsonMapper, final Query<T> query, final String remoteAddr
   ) throws JsonProcessingException
   {
-    return makeQueryTimePortionMetric(query)
+    return makePartialQueryTimeMetric(query)
         .setDimension(
             "context",
             jsonMapper.writeValueAsString(
@@ -82,6 +94,6 @@ public class QueryMetricUtil
             )
         )
         .setDimension("remoteAddr", remoteAddr)
-        .setDimension("id", query.getId());
+        .setDimension(ID, query.getId());
   }
 }

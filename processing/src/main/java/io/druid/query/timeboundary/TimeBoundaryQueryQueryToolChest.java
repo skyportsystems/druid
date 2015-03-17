@@ -32,6 +32,7 @@ import io.druid.collections.OrderedMergeSequence;
 import io.druid.query.BySegmentSkippingQueryRunner;
 import io.druid.query.CacheStrategy;
 import io.druid.query.DataSourceUtil;
+import io.druid.query.DruidMetrics;
 import io.druid.query.Query;
 import io.druid.query.QueryRunner;
 import io.druid.query.QueryToolChest;
@@ -122,8 +123,8 @@ public class TimeBoundaryQueryQueryToolChest
   public ServiceMetricEvent.Builder makeMetricBuilder(TimeBoundaryQuery query)
   {
     return new ServiceMetricEvent.Builder()
-            .setDimension("dataSource", DataSourceUtil.getMetricName(query.getDataSource()))
-            .setDimension("type", query.getType());
+            .setDimension(DruidMetrics.DATASOURCE, DataSourceUtil.getMetricName(query.getDataSource()))
+            .setDimension(DruidMetrics.TYPE, query.getType());
   }
 
   @Override

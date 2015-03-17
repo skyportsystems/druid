@@ -25,6 +25,7 @@ import com.metamx.emitter.service.ServiceMetricEvent;
 import io.druid.client.DruidDataSource;
 import io.druid.client.ImmutableDruidServer;
 import io.druid.collections.CountingMap;
+import io.druid.query.DruidMetrics;
 import io.druid.server.coordinator.CoordinatorStats;
 import io.druid.server.coordinator.DruidCluster;
 import io.druid.server.coordinator.DruidCoordinatorRuntimeParams;
@@ -89,29 +90,29 @@ public class DruidCoordinatorLogger implements DruidCoordinatorHelper
     }
 
     emitTieredStats(
-        emitter, "coordinator/%s/cost/raw",
+        emitter, "segment/%s/cost/raw",
         stats.getPerTierStats().get("initialCost")
     );
 
     emitTieredStats(
-        emitter, "coordinator/%s/cost/normalization",
+        emitter, "segment/%s/cost/normalization",
         stats.getPerTierStats().get("normalization")
     );
 
     emitTieredStats(
-        emitter, "coordinator/%s/moved/count",
+        emitter, "segment/%s/moved/count",
         stats.getPerTierStats().get("movedCount")
     );
 
     emitTieredStats(
-        emitter, "coordinator/%s/deleted/count",
+        emitter, "segment/%s/deleted/count",
         stats.getPerTierStats().get("deletedCount")
     );
 
     Map<String, AtomicLong> normalized = stats.getPerTierStats().get("normalizedInitialCostTimesOneThousand");
     if (normalized != null) {
       emitTieredStats(
-          emitter, "coordinator/%s/cost/normalized",
+          emitter, "segment/%s/cost/normalized",
           Maps.transformEntries(
               normalized,
               new Maps.EntryTransformer<String, AtomicLong, Number>()
@@ -138,7 +139,7 @@ public class DruidCoordinatorLogger implements DruidCoordinatorHelper
 
     emitter.emit(
         new ServiceMetricEvent.Builder().build(
-            "coordinator/overShadowed/count", stats.getGlobalStats().get("overShadowedCount")
+            "segment/overShadowed/count", stats.getGlobalStats().get("overShadowedCount")
         )
     );
 
@@ -184,26 +185,26 @@ public class DruidCoordinatorLogger implements DruidCoordinatorHelper
       LoadQueuePeon queuePeon = entry.getValue();
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setDimension("server", serverName).build(
-              "coordinator/loadQueue/size", queuePeon.getLoadQueueSize()
+              .setDimension(DruidMetrics.SERVER, serverName).build(
+              "segment/loadQueue/size", queuePeon.getLoadQueueSize()
           )
       );
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setDimension("server", serverName).build(
-              "coordinator/loadQueue/failed", queuePeon.getAndResetFailedAssignCount()
+              .setDimension(DruidMetrics.SERVER, serverName).build(
+              "segment/loadQueue/failed", queuePeon.getAndResetFailedAssignCount()
           )
       );
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setDimension("server", serverName).build(
-              "coordinator/loadQueue/count", queuePeon.getSegmentsToLoad().size()
+              .setDimension(DruidMetrics.SERVER, serverName).build(
+              "segment/loadQueue/count", queuePeon.getSegmentsToLoad().size()
           )
       );
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setDimension("server", serverName).build(
-              "coordinator/dropQueue/count", queuePeon.getSegmentsToDrop().size()
+              .setDimension(DruidMetrics.SERVER, serverName).build(
+              "segment/dropQueue/count", queuePeon.getSegmentsToDrop().size()
           )
       );
     }
@@ -222,8 +223,8 @@ public class DruidCoordinatorLogger implements DruidCoordinatorHelper
       Long size = entry.getValue();
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setDimension("dataSource", dataSource).build(
-              "coordinator/segment/size", size
+              .setDimension(DruidMetrics.DATASOURCE, dataSource).build(
+              "segment/size", size
           )
       );
     }
@@ -232,8 +233,8 @@ public class DruidCoordinatorLogger implements DruidCoordinatorHelper
       Long count = entry.getValue();
       emitter.emit(
           new ServiceMetricEvent.Builder()
-              .setDimension("dataSource", dataSource).build(
-              "coordinator/segment/count", count
+              .setDimension(DruidMetrics.DATASOURCE, dataSource).build(
+              "segment/count", count
           )
       );
     }

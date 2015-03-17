@@ -47,7 +47,7 @@ import io.druid.query.IntervalChunkingQueryRunnerDecorator;
 import io.druid.query.Query;
 import io.druid.query.QueryCacheHelper;
 import io.druid.query.QueryDataSource;
-import io.druid.query.QueryMetricUtil;
+import io.druid.query.DruidMetrics;
 import io.druid.query.QueryRunner;
 import io.druid.query.QueryToolChest;
 import io.druid.query.SubqueryQueryRunner;
@@ -254,12 +254,12 @@ public class GroupByQueryQueryToolChest extends QueryToolChest<Row, GroupByQuery
   @Override
   public ServiceMetricEvent.Builder makeMetricBuilder(GroupByQuery query)
   {
-    return QueryMetricUtil.makeQueryTimePortionMetric(query)
+    return DruidMetrics.makePartialQueryTimeMetric(query)
                           .setDimension("numDimensions", String.valueOf(query.getDimensions().size()))
                           .setDimension("numMetrics", String.valueOf(query.getAggregatorSpecs().size()))
                           .setDimension(
                               "numComplexMetrics",
-                              String.valueOf(QueryMetricUtil.findNumComplexAggs(query.getAggregatorSpecs()))
+                              String.valueOf(DruidMetrics.findNumComplexAggs(query.getAggregatorSpecs()))
                           );
   }
 

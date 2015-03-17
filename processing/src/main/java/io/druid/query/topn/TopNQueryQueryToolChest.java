@@ -38,7 +38,7 @@ import io.druid.query.CacheStrategy;
 import io.druid.query.IntervalChunkingQueryRunnerDecorator;
 import io.druid.query.Query;
 import io.druid.query.QueryCacheHelper;
-import io.druid.query.QueryMetricUtil;
+import io.druid.query.DruidMetrics;
 import io.druid.query.QueryRunner;
 import io.druid.query.QueryToolChest;
 import io.druid.query.Result;
@@ -154,7 +154,7 @@ public class TopNQueryQueryToolChest extends QueryToolChest<Result<TopNResultVal
   @Override
   public ServiceMetricEvent.Builder makeMetricBuilder(TopNQuery query)
   {
-    return QueryMetricUtil.makeQueryTimePortionMetric(query)
+    return DruidMetrics.makePartialQueryTimeMetric(query)
                           .setDimension(
                               "type", String.format(
                                   "topN/%s/%s",
@@ -168,7 +168,7 @@ public class TopNQueryQueryToolChest extends QueryToolChest<Result<TopNResultVal
                           )
                           .setDimension(
                               "numComplexMetrics",
-                              String.valueOf(QueryMetricUtil.findNumComplexAggs(query.getAggregatorSpecs()))
+                              String.valueOf(DruidMetrics.findNumComplexAggs(query.getAggregatorSpecs()))
                           );
   }
 

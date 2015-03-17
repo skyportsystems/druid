@@ -22,6 +22,7 @@ import com.metamx.emitter.service.ServiceEmitter;
 import com.metamx.emitter.service.ServiceMetricEvent;
 import com.metamx.metrics.AbstractMonitor;
 import io.druid.client.DruidServerConfig;
+import io.druid.query.DruidMetrics;
 import io.druid.server.coordination.ServerManager;
 
 import java.util.Map;
@@ -54,7 +55,7 @@ public class HistoricalMetricsMonitor extends AbstractMonitor
       totalUsed += used;
 
       final ServiceMetricEvent.Builder builder =
-          new ServiceMetricEvent.Builder().setDimension("dataSource", dataSource)
+          new ServiceMetricEvent.Builder().setDimension(DruidMetrics.DATASOURCE, dataSource)
                                           .setDimension("tier", serverConfig.getTier())
                                           .setDimension("priority", String.valueOf(serverConfig.getPriority()));
 
@@ -69,7 +70,7 @@ public class HistoricalMetricsMonitor extends AbstractMonitor
       long count = entry.getValue();
       totalCount += count;
       final ServiceMetricEvent.Builder builder =
-          new ServiceMetricEvent.Builder().setDimension("dataSource", dataSource)
+          new ServiceMetricEvent.Builder().setDimension(DruidMetrics.DATASOURCE, dataSource)
                                           .setDimension("tier", serverConfig.getTier())
                                           .setDimension(
                                               "priority",

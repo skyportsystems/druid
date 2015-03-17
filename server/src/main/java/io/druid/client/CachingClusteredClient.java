@@ -343,7 +343,7 @@ public class CachingClusteredClient<T> implements QueryRunner<T>
                     }
                   },
                   serverView.getQueryRunner(server),
-                  "segment/scan/time"
+                  "query/node/time"
               );
 
               if (clientQueryable == null) {

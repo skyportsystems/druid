@@ -65,10 +65,12 @@
     </scm>
 
     <properties>
-        <metamx.java-util.version>0.27.1-SNAPSHOT</metamx.java-util.version>
+        <!-- Needed for nano timestamp parsing -->
+        <metamx.java-util.version>0.27.1</metamx.java-util.version>
         <apache.curator.version>2.7.0</apache.curator.version>
         <jetty.version>9.2.5.v20141112</jetty.version>
         <druid.api.version>0.3.6</druid.api.version>
+        <!-- Why Jackson 2.2.3? https://groups.google.com/d/msg/druid-user/bDLJ3iY8RRQ/MJFsDEiegTAJ -->
         <jackson.version>2.2.3</jackson.version>
         <log4j.version>2.2</log4j.version>
         <slf4j.version>1.7.10</slf4j.version>

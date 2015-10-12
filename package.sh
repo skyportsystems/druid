@@ -2,9 +2,11 @@
 
 set -e
 
-druid_version=`ls services/target/druid-*tar.gz | grep -o druid-[0-9].[0-9].[0-9].[0-9]`
+DIST_DIR='distribution/target'
+
+druid_version=`ls $DIST_DIR/druid-*tar.gz | grep -o druid-[0-9].[0-9].[0-9].[0-9]`
 test -d ${druid_version} && rm -rf ${druid_version}
-tar zxvf services/target/${druid_version}-bin.tar.gz
+tar zxvf $DIST_DIR/${druid_version}-bin.tar.gz
 mkdir -p ${druid_version}/config/pull-deps/
 cp pull-deps.runtime.properties ${druid_version}/config/pull-deps/common.runtime.properties
 pushd ${druid_version}

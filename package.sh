@@ -4,7 +4,7 @@ set -e
 
 DIST_DIR='distribution/target'
 
-druid_version=`ls $DIST_DIR/druid-*tar.gz | grep -o druid-[0-9].[0-9].[0-9].[0-9]`
+druid_version=`ls $DIST_DIR/druid-*tar.gz | sed 's/.*\(druid-.*\)-.*/\1/g'`
 test -d ${druid_version} && rm -rf ${druid_version}
 tar zxvf $DIST_DIR/${druid_version}-bin.tar.gz
 mkdir -p ${druid_version}/config/pull-deps/
